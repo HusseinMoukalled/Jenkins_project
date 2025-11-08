@@ -10,10 +10,14 @@ pipeline {
         stage('Setup') {
             steps {
                 script {
+                    // Create virtual environment if not already present
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
                         bat "python -m venv ${VIRTUAL_ENV}"
                     }
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
+                    // Upgrade pip before installing dependencies
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && python -m pip install --upgrade pip"
+                    // Install all required dependencies
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt --upgrade-strategy eager"
                 }
             }
         }
@@ -61,6 +65,8 @@ pipeline {
     }
 
     post {
-        always { cleanWs() }
+        always {
+            cleanWs()
+        }
     }
 }
