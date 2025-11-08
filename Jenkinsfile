@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         VIRTUAL_ENV = 'venv'
+        // make project root importable as a module
+        PYTHONPATH = "${WORKSPACE}"
     }
 
     stages {
@@ -28,7 +30,8 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && pytest"
+                    // ensure PYTHONPATH is set for this process on Windows
+                    bat "set PYTHONPATH=%WORKSPACE% && call ${VIRTUAL_ENV}\\Scripts\\activate && pytest -q"
                 }
             }
         }
@@ -43,8 +46,6 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()
-        }
+        always { cleanWs() }
     }
 }
