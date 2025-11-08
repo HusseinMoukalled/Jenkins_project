@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         VIRTUAL_ENV = 'venv'
-        // make project root importable as a module
         PYTHONPATH = "${WORKSPACE}"
     }
 
@@ -30,8 +29,24 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // ensure PYTHONPATH is set for this process on Windows
                     bat "set PYTHONPATH=%WORKSPACE% && call ${VIRTUAL_ENV}\\Scripts\\activate && pytest -q"
+                }
+            }
+        }
+
+        stage('Coverage') {
+            steps {
+                script {
+                    bat "set PYTHONPATH=%WORKSPACE% && call ${VIRTUAL_ENV}\\Scripts\\activate && coverage run -m pytest"
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && coverage report"
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                script {
+                    bat "call ${VIRTUAL_ENV}\\Scripts\\activate && bandit -r ."
                 }
             }
         }
@@ -39,7 +54,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo 'Deploying application...'
+                    echo 'Deployment step (simulated for this lab)...'
                 }
             }
         }
